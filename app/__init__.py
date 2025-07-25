@@ -1,7 +1,13 @@
 from flask import Flask
 from .models import db
 from .auth.routes import auth as auth_blueprint
-from .products.routes import products as products_blueprint
+from .products.routes import products_bp as products_blueprint
+from flask_login import LoginManager
+from app.models import User  # Assuming you have a User model
+
+login_manager = LoginManager()
+login_manager.login_view = 'auth.login'  # 🔐 This redirects to login if not authenticated
+login_manager.login_message_category = 'info'  # Optional: flash message category
 
 def create_app():
     app = Flask(__name__)
@@ -17,3 +23,5 @@ def create_app():
     app.register_blueprint(products_blueprint, url_prefix='/products')
     
     return app
+def load_user(user_id):
+    return User.query.get(int(user_id))
