@@ -6,7 +6,7 @@ from flask_login import LoginManager
 from app.models import User  # Assuming you have a User model
 
 login_manager = LoginManager()
-login_manager.login_view = 'auth.login'  # 🔐 This redirects to login if not authenticated
+login_manager.login_view = 'auth.login'  #  This redirects to login if not authenticated
 login_manager.login_message_category = 'info'  # Optional: flash message category
 
 def create_app():
