@@ -13,3 +13,13 @@ class InventoryLog(db.Model):
 
     product = db.relationship("Product", backref="logs")
     user = db.relationship("User", backref="inventory_logs")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "product_id": self.product_id,
+            "user_id": self.user_id,
+            "action_type": self.action_type,
+            "quantity": self.quantity,
+            "timestamp": self.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+        }

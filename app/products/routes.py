@@ -4,7 +4,7 @@ from flask_login import current_user, login_required
 from datetime import datetime
 from ..models import Product, db, InventoryLog, User
 from app.products.forms import ProductForm
-
+from flask_jwt_extended import get_jwt, jwt_required
 # Optional: Import email alert function (handle if missing in dev)
 try:
     from app.utils.email import send_low_stock_email
@@ -175,3 +175,35 @@ def update_stock():
 
     return jsonify({'message': 'Stock updated successfully'})
 
+
+# inventory-system/app/products/routes.py
+
+# ... (all your other routes like get_products, create_product, etc. are here) ...
+
+
+# ADD THIS CODE AT THE VERY BOTTOM OF THE FILE:
+@products_bp.route('/logs', methods=['GET'])
+@jwt_required()
+def get_logs():
+    """Endpoint to fetch inventory logs."""
+    try:
+        # Assuming you have an InventoryLog model
+        from ..models import InventoryLog 
+        
+        logs = InventoryLog.query.order_by(InventoryLog.timestamp.desc()).limit(100).all()
+        
+        # Convert logs to a list of dictionaries to be sent as JSON
+        output = []
+        for log in logs:
+            output.append({
+                'id': log.id,
+                'product_id': log.product_id,
+                'action': log.action,
+                'details': log.details,
+                'user_id': log.user_id,
+                'timestamp': log.timestamp.isoformat()
+            })
+            
+        return jsonify(output), 200
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500

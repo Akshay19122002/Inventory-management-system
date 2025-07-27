@@ -1,19 +1,17 @@
 import smtplib
-from email.mime.text import MIMEText
+from email.message import EmailMessage
 
-def send_low_stock_email(product, to_email):
-    subject = f"⚠️ Low Stock Alert for {product.name}"
-    body = (
-        f"The product '{product.name}' (SKU: {product.sku}) is below the threshold.\n"
-        f"Current stock: {product.quantity}"
-    )
+def send_low_stock_email(product):
+    msg = EmailMessage()
+    msg['Subject'] = f'Low Stock Alert for {product.name}'
+    msg['From'] = 'your_email@example.com'
+    msg['To'] = 'admin@example.com'
+    msg.set_content(f'Stock for {product.name} is low: {product.stock} remaining.')
 
-    message = MIMEText(body)
-    message["Subject"] = subject
-    message["From"] = "your-email@gmail.com"
-    message["To"] = to_email
-
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
-        server.starttls()
-        server.login("your-email@gmail.com", "your-app-password")  # Use App Password here
-        server.sendmail("your-email@gmail.com", [to_email], message.as_string())
+    try:
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls()
+            server.login('youremail@example.com', 'yourpassword')
+            server.send_message(msg)
+    except Exception as e:
+        print("Email sending failed:", e)

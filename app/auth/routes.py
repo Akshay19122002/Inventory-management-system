@@ -1,58 +1,50 @@
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify, flash
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Blueprint, request, jsonify
+from ..models import User  # Use relative import '..' to go up one level to app/
+from .. import db, bcrypt # Use relative import '..' to get db and bcrypt from __init__.py
+from flask_jwt_extended import create_access_token
 from flask_login import login_user, logout_user, login_required
-from ..models.models import db, User
 
-
+# This is the correct way to define your blueprint
 auth = Blueprint('auth', __name__)
 
-# Register route
-@auth.route('/register', methods=['GET', 'POST'])
+@auth.route('/register', methods=['POST'])
 def register():
-    if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email')
-        password = request.form.get('password')
-
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            flash('Email already registered', 'danger')
-            return render_template('register.html', error='Email already registered')
-
-        hashed_password = generate_password_hash(password)
-        new_user = User(name=name, email=email, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        flash('Registration successful! Please log in.', 'success')
-        return redirect(url_for('auth.login'))
-
-    return render_template('register.html')
+    # ... your registration logic here ...
+    data = request.get_json()
+    if not data or not data.get('email') or not data.get('password'):
+        return jsonify({"message": "Missing email or password"}), 400
+    
+    if User.query.filter_by(email=data['email']).first():
+        return jsonify({"message": "Email already registered"}), 409
+    
+    new_user = User(email=data['email'], role=data.get('role', 'Staff'))
+    new_user.set_password(data['password'])
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({"message": "User registered successfully"}), 201
 
 
-# Login route
-@auth.route('/login', methods=['GET', 'POST'])
+@auth.route('/login', methods=['POST'])
 def login():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+    # ... your login logic here ...
+    data = request.get_json()
+    if not data or not data.get('email') or not data.get('password'):
+        return jsonify({"message": "Missing email or password"}), 400
+        
+    user = User.query.filter_by(email=data['email']).first()
 
-        user = User.query.filter_by(email=email).first()
+    if user and user.check_password(data['password']):
+        login_user(user) # For Flask-Login session
+        additional_claims = {"role": user.role}
+        access_token = create_access_token(
+            identity=user.email, additional_claims=additional_claims
+        )
+        return jsonify(access_token=access_token, user={"email": user.email, "role": user.role})
+    
+    return jsonify({"message": "Invalid credentials"}), 401
 
-        if not user or not check_password_hash(user.password, password):
-            flash('Invalid credentials', 'danger')
-            return render_template('login.html', error='Invalid credentials')
-
-        login_user(user)
-        flash('Welcome back!', 'success')
-        return redirect(url_for('frontend.dashboard'))  # Replace with your dashboard route
-
-    return render_template('login.html')
-
-
-# Logout route
 @auth.route('/logout')
 @login_required
 def logout():
     logout_user()
-    flash('You have been logged out.', 'info')
-    return redirect(url_for('auth.login'))
+    return jsonify({"message": "Successfully logged out"}), 200

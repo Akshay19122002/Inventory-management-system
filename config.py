@@ -1,4 +1,11 @@
+from dotenv import load_dotenv
+import os
+from pathlib import Path
+
+env_path = Path('.') / '.env'
+load_dotenv(dotenv_path=env_path)
+
 class Config:
-    SECRET_KEY = 'your_secret_key_here'  # Replace with a strong secret key
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///site.db'  # Replace with your database URI
+    SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False

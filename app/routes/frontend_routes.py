@@ -67,6 +67,10 @@ def logout():
     return redirect(url_for('frontend.login'))
 
 
+from flask_login import login_required, current_user
+from flask import render_template
+
+
 
 
 

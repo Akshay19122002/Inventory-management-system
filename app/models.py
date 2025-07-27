@@ -3,7 +3,6 @@ from flask import Flask
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-
 db = SQLAlchemy()
 
 class User(UserMixin,db.Model):
@@ -75,3 +74,11 @@ class InventoryLog(db.Model):
             "quantity": self.quantity,
             "timestamp": self.timestamp.strftime("%Y-%m-%d %H:%M:%S")
         }
+
+
+
+class NotificationPreference(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    notify = db.Column(db.Boolean, default=True)    
