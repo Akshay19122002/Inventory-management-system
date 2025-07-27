@@ -37,6 +37,7 @@ class Product(db.Model):
     description = db.Column(db.String(200), nullable=True)
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)
+    threshold = db.Column(db.Integer, default=10)  # ✅ Low stock threshold
 
     def __repr__(self):
         return f'<Product {self.name}>'
