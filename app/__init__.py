@@ -1,25 +1,34 @@
 from flask import Flask
-from .models import db
+from .models import db, user
 from .auth.routes import auth as auth_blueprint
 from .products.routes import products_bp as products_blueprint
 from .routes.frontend_routes import frontend_bp  # ✅ New
 from flask_login import LoginManager
-from app.models import User  # ✅ Your User model
+from flask_migrate import Migrate  # ✅ Import Flask-Migrate
+from flask_sqlalchemy import SQLAlchemy
 
 login_manager = LoginManager()
 login_manager.login_view = 'frontend.login'  # ✅ points to the correct route function
 login_manager.login_message_category = 'info'
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+db = SQLAlchemy()
+migrate = Migrate()
+
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object('config.Config')
 
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///your_database.db'  # or your actual DB URI
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+
     db.init_app(app)
+    migrate.init_app(app, db)  # ✅ Initialize Flask-Migrate
+    from app.models import User  
+    
     login_manager.init_app(app)
+    
 
     # Register Blueprints
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
@@ -27,11 +36,10 @@ def create_app():
     app.register_blueprint(frontend_bp)  # ✅ Register frontend pages (login, dashboard, etc.)
 
     return app
-<<<<<<< HEAD
-=======
+
 
 # User loader for Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
->>>>>>> 69b00c0ee3e94f86dcba1689ea03969cf1e1b759
+
