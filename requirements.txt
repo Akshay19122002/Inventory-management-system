@@ -7,3 +7,4 @@ Flask-JWT-Extended
 Flask-Cors
 python-dotenv==0.20.0
 Flask-Login
+flask_jwt_extended

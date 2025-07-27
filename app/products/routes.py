@@ -42,6 +42,9 @@ def delete_product(product_id):
 
 from flask_jwt_extended import jwt_required, get_jwt_identity
 @products_bp.route('/products/sale', methods=['POST'])
+@jwt_required()
+def stock_sale():
+    return handle_stock_update('sale')
 
 @products_bp.route('/products/return', methods=['POST'])
 @jwt_required()
