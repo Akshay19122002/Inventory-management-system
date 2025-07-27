@@ -4,8 +4,12 @@ from .auth.routes import auth as auth_blueprint
 from .products.routes import products_bp as products_blueprint
 from .routes.frontend_routes import frontend_bp  # ✅ New
 from flask_login import LoginManager
-from app.models import User  # ✅ Your User model
+from models import User  # ✅ Your User model
+from flask_sqlalchemy import SQLAlchemy
 
+db= SQLAlchemy()
+# Initialize Flask-Login
+from flask_login import LoginManager    
 login_manager = LoginManager()
 login_manager.login_view = 'frontend.login'  # ✅ points to the correct route function
 login_manager.login_message_category = 'info'

@@ -3,9 +3,12 @@ from flask_login import login_required, login_user, logout_user, current_user
 from app.models.user import User
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
-
 frontend_bp = Blueprint('frontend', __name__)
-
+# Dummy users
+dummy_users = [
+    {"email": "admin@gmail.com", "password": "admin123", "role": "admin"},
+    {"email": "staff@gmail.com", "password": "staff123", "role": "staff"},
+]
 # Home/Login Page
 @frontend_bp.route('/', methods=['GET', 'POST'])
 @frontend_bp.route('/login', methods=['GET', 'POST'])
@@ -52,10 +55,7 @@ def dashboard():
     if current_user.role == 'admin':
         products = Product.query.all()
     else:
-        products = Product.query.with_entities(
-            Product.id, Product.sku, Product.name,
-            Product.quantity, Product.threshold, Product.expiry_date
-        ).all()
+        products = Product.query.all()
 
     return render_template("dashboard.html", products=products, user=current_user)
 
@@ -65,3 +65,16 @@ def dashboard():
 def logout():
     logout_user()
     return redirect(url_for('frontend.login'))
+
+
+
+
+
+
+
+
+
+
+
+
+
