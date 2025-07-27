@@ -1,39 +1,55 @@
-from flask import Blueprint, render_template, redirect, url_for, flash
-from flask_login import login_user, logout_user, login_required, current_user
-from .forms import LoginForm, RegistrationForm
-from ..models import User
-from .. import db
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import login_user, logout_user, login_required
+from app.models.user import User
+from app.models import db
 
 auth = Blueprint('auth', __name__)
 
-@auth.route('/login', methods=['GET', 'POST'])
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user and user.check_password(form.password.data):
-            login_user(user)
-            flash('Login successful!', 'success')
-            return redirect(url_for('dashboard'))
-        flash('Login failed. Check your email and password.', 'danger')
-    return render_template('login.html', form=form)
-
+# Register route
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        user = User(email=form.email.data, username=form.username.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        flash('Registration successful! You can now log in.', 'success')
-        return redirect(url_for('auth.login'))
-    return render_template('register.html', form=form)
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        password = request.form.get('password')
 
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            flash('Email already registered', 'danger')
+            return render_template('register.html', error='Email already registered')
+
+        hashed_password = generate_password_hash(password)
+        new_user = User(name=name, email=email, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+        flash('Registration successful! Please log in.', 'success')
+        return redirect(url_for('auth.login'))
+
+    return render_template('register.html')
+
+
+# Login route
+@auth.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        user = User.query.filter_by(email=email).first()
+
+        if not user or not check_password_hash(user.password, password):
+            flash('Invalid credentials', 'danger')
+            return render_template('login.html', error='Invalid credentials')
+
+        login_user(user)
+        flash('Welcome back!', 'success')
+        return redirect(url_for('dashboard'))  # Replace with your dashboard route
+
+    return render_template('login.html')
+
+
+# Logout route
 @auth.route('/logout')
 @login_required
 def logout():

@@ -1,49 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <title>Dashboard</title>
-</head>
-<body>
-    <header>
-        <h1>Welcome to the Inventory Dashboard</h1>
-        <nav>
-            <ul>
-                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
-                <li><a href="{{ url_for('products.index') }}">Products</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <section>
-            <h2>Your Inventory</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Product Name</th>
-                        <th>Quantity</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for product in products %}
-                    <tr>
-                        <td>{{ product.name }}</td>
-                        <td>{{ product.quantity }}</td>
-                        <td>
-                            <a href="{{ url_for('products.edit', product_id=product.id) }}">Edit</a>
-                            <a href="{{ url_for('products.delete', product_id=product.id) }}">Delete</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; {{ year }} Inventory System</p>
-    </footer>
-</body>
-</html>
+{% extends "base.html" %} {% block content %}
+<h2>Welcome, {{ current_user.name }}</h2>
+<p>Role: <strong>{{ current_user.role }}</strong></p>
+
+{% if current_user.role == 'admin' %}
+<a href="{{ url_for('products.create') }}" class="btn btn-primary"
+  >Add Product</a
+>
+<a href="{{ url_for('logs.view') }}" class="btn btn-secondary">View Logs</a>
+{% endif %}
+
+<table>
+  <thead>
+    <tr>
+      <th>SKU</th>
+      <th>Name</th>
+      <th>Stock</th>
+      <th>Expiry</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for product in products %}
+    <tr
+      class="{% if product.stock <= product.threshold %}low-stock-row{% endif %}"
+    >
+      <td>{{ product.sku }}</td>
+      <td>{{ product.name }}</td>
+      <td>
+        {{ product.stock }} {% if product.stock <= product.threshold %}
+        <span class="badge low-stock">Low</span>
+        {% endif %}
+      </td>
+      <td>{{ product.expiry_date or '—' }}</td>
+      <td>
+        {% if current_user.role == 'admin' %}
+        <a href="{{ url_for('products.edit', product_id=product.id) }}">Edit</a>
+        |
+        <a href="{{ url_for('products.delete', product_id=product.id) }}"
+          >Delete</a
+        >
+        {% else %}
+        <a href="{{ url_for('stock.sale', product_id=product.id) }}">Sale</a> |
+        <a href="{{ url_for('stock.return_', product_id=product.id) }}"
+          >Return</a
+        >
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

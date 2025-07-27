@@ -1,1 +1,24 @@
-This directory is intended for CSS files for styling the application. Since no specific CSS files were mentioned, this file is intentionally left blank.
+.badge.low-stock {
+  background: #dc3545;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 0.75rem;
+}
+.low-stock-row {
+  background-color: #fff3f3;
+}
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  margin-right: 10px;
+}
+.btn-primary {
+  background-color: #007bff;
+}
+.btn-secondary {
+  background-color: #6c757d;
+}
