@@ -1,0 +1,43 @@
+{% extends "base.html" %} {% block title %}Staff Dashboard{% endblock %} {%
+block content %}
+<h2>Welcome, Staff</h2>
+
+<p>You can update stock for the following products:</p>
+
+{% set products = [ {"sku": "P001", "name": "Paracetamol", "barcode":
+"1234567890", "category": "Medicine", "stock": 120, "threshold": 10,
+"expiry_date": "2025-12-01"}, {"sku": "P002", "name": "Ibuprofen", "barcode":
+"0987654321", "category": "Medicine", "stock": 8, "threshold": 15,
+"expiry_date": "2024-10-10"}, {"sku": "P003", "name": "Gauze Roll", "barcode":
+"4561237890", "category": "First Aid", "stock": 30, "threshold": 20,
+"expiry_date": null}, ] %}
+
+<table style="width: 100%; margin-top: 1.5rem; border-collapse: collapse">
+  <thead>
+    <tr style="background: #28a745; color: white">
+      <th style="padding: 8px">SKU</th>
+      <th style="padding: 8px">Name</th>
+      <th style="padding: 8px">Category</th>
+      <th style="padding: 8px">Stock</th>
+      <th style="padding: 8px">Expiry Date</th>
+      <th style="padding: 8px">Update Stock</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for product in products %}
+    <tr style="border-bottom: 1px solid #ddd">
+      <td style="padding: 8px">{{ product.sku }}</td>
+      <td style="padding: 8px">{{ product.name }}</td>
+      <td style="padding: 8px">{{ product.category }}</td>
+      <td style="padding: 8px">{{ product.stock }}</td>
+      <td style="padding: 8px">
+        {{ product.expiry_date if product.expiry_date else '—' }}
+      </td>
+      <td style="padding: 8px">
+        <a href="/update-stock/{{ product.sku }}">📦 Update</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

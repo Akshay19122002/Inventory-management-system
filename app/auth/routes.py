@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required
-from models import db ,User
+from ..models.models import db, User
 
 
 auth = Blueprint('auth', __name__)
@@ -44,7 +44,7 @@ def login():
 
         login_user(user)
         flash('Welcome back!', 'success')
-        return redirect(url_for('dashboard'))  # Replace with your dashboard route
+        return redirect(url_for('frontend.dashboard'))  # Replace with your dashboard route
 
     return render_template('login.html')
 

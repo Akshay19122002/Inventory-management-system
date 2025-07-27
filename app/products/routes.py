@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_login import current_user, login_required
 from datetime import datetime
-from app.models import Product, db, InventoryLog, User
+from ..models import Product, db, InventoryLog, User
 from app.products.forms import ProductForm
 
 # Optional: Import email alert function (handle if missing in dev)
