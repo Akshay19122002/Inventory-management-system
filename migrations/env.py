@@ -54,7 +54,7 @@ def run_migrations_offline():
 
 
 def run_migrations_online():
-    from models import db
+    from app.models import db
     target_metadata = db.metadata
 
     def process_revision_directives(context, revision, directives):
