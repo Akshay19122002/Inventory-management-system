@@ -37,3 +37,44 @@ def delete_product(product_id):
     db.session.delete(product)
     db.session.commit()
     return '', 204
+
+
+
+from flask_jwt_extended import jwt_required, get_jwt_identity
+@products_bp.route('/products/sale', methods=['POST'])
+
+@products_bp.route('/products/return', methods=['POST'])
+@jwt_required()
+def stock_return():
+    return handle_stock_update('return')
+
+@products_bp.route('/products/restock', methods=['POST'])
+@jwt_required()
+def stock_restock():
+    return handle_stock_update('restock')
+
+
+
+
+def handle_stock_update(action):
+    data = request.get_json()
+    product_id = data.get('product_id')
+    quantity = data.get('quantity')
+
+    if not product_id or not quantity or quantity <= 0:
+        return jsonify({'error': 'Invalid input'}), 400
+
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({'error': 'Product not found'}), 404
+
+    if action == 'sale':
+        if product.quantity < quantity:
+            return jsonify({'error': 'Not enough stock'}), 400
+        product.quantity -= quantity
+    elif action in ['return', 'restock']:
+        product.quantity += quantity
+
+    db.session.commit()
+    return jsonify({'message': f'Stock updated for {action}', 'current_quantity': product.quantity}), 200
+

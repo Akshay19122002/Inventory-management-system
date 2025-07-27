@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-
+from flask import Flask
 db = SQLAlchemy()
 
 class User(db.Model):
@@ -11,6 +11,15 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "email": self.email
+        }
+
+
+
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -20,3 +29,14 @@ class Product(db.Model):
 
     def __repr__(self):
         return f'<Product {self.name}>'
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "quantity": self.quantity,
+            "price": self.price,
+            "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S")
+        }
+    

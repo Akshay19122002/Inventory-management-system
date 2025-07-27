@@ -9,6 +9,10 @@ login_manager = LoginManager()
 login_manager.login_view = 'auth.login'  # 🔐 This redirects to login if not authenticated
 login_manager.login_message_category = 'info'  # Optional: flash message category
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 def create_app():
     app = Flask(__name__)
     
@@ -23,5 +27,3 @@ def create_app():
     app.register_blueprint(products_blueprint, url_prefix='/products')
     
     return app
-def load_user(user_id):
-    return User.query.get(int(user_id))
